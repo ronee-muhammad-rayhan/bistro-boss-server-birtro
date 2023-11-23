@@ -289,7 +289,7 @@ async function run() {
      */
 
     // using aggregate pipeline
-    app.get("/order-stats", async (req, res) => {
+    app.get("/order-stats", verifyToken, verifyAdmin, async (req, res) => {
       const result = await paymentCollection
         .aggregate([
           {
@@ -311,6 +311,14 @@ async function run() {
               _id: "$menuItems.category",
               quantity: { $sum: 1 },
               revenue: { $sum: "$menuItems.price" },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              category: "$_id",
+              quantity: "$quantity",
+              revenue: "$revenue",
             },
           },
         ])
